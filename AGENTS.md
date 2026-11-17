@@ -27,7 +27,8 @@ every `AGENTS.md` has a `CLAUDE.md` symlink beside it (`ln -s AGENTS.md CLAUDE.m
 
 Read `docs/coding-style/README.md` before you design, plan or write a component. It indexes the
 rules (`rules.md`, with the done checklist), the resilience sheets (`rate-limiting.md`,
-`backpressure.md`, `circuit-breakers-and-retries.md`), `concurrency-patterns.md`, `object-storage.md`, `distributed-algorithms.md` and the full guides (`go-coding-style.md`,
+`backpressure.md`, `circuit-breakers-and-retries.md`), `concurrency-patterns.md`, `object-storage.md`, `distributed-algorithms.md`,
+`simulation-testing.md` and the full guides (`go-coding-style.md`,
 `go-testing.md`).
 
 Resilience and testing are part of the design, not a pass at the end. For every component,
@@ -46,6 +47,13 @@ It is refined with the user in rounds and agreed before implementation starts.
 name the abstraction, and write the module specification in that sheet's terms (safety,
 liveness, uniform, epoch, stable storage) before writing code. strata does not implement its
 own consensus, total-order broadcast or failure detector.
+
+**Simulation drives testing.** Deterministic simulation testing is the main way strata looks
+for distributed bugs before production. Every design says whether the feature goes in the
+simulation, and why. All code that decides something follows the day-one rules in
+`docs/coding-style/simulation-testing.md` (no wall clock, no ambient randomness or ids, no
+order from maps or goroutine scheduling) so that it can. Build the simulator and its supporting
+packages with the feature that first needs them, not ahead of it.
 
 Use the shared packages: `internal/assert` (contracts), `internal/errs` (errors), `internal/logx`
 (logs and the top-level reporter). `make check` is the gate before a change is done: gofmt,

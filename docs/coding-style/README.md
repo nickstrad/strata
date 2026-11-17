@@ -11,11 +11,21 @@ How strata code is designed, written and tested. One line per doc; open only wha
 | [concurrency-patterns.md](concurrency-patterns.md) | A component has goroutines that share state or wait for each other: the Go form of each pattern, lock ordering, starvation. |
 | [object-storage.md](object-storage.md) | A component reads or writes object storage: manifests, conditional writes, fencing, cleanup, and what SlateDB and OpenData do. |
 | [distributed-algorithms.md](distributed-algorithms.md) | **Every feature**: the eight questions that tell you whether you are writing a distributed algorithm. If yes: the vocabulary and the module specification form to use. |
+| [simulation-testing.md](simulation-testing.md) | **Every feature**: whether it goes in the deterministic simulation, the rules all code follows so that it can, the simulator's shape, the fault model, what is checked. |
 | [go-coding-style.md](go-coding-style.md) | You need detail or a template: layout, contracts, `errs`, `logx`, the Result pattern. |
 | [go-testing.md](go-testing.md) | You write tests: spec tables, coverage, fuzzing, contract suites, fakes, e2e. |
 
 `go-coding-style.md` and `go-testing.md` are the house guides, copied in unchanged. Do not edit
 them for strata; strata's own rules go in the other files.
+
+## Simulation drives the project
+
+Deterministic simulation testing is how strata looks for distributed bugs before production:
+the real code of several processes in one test, on a simulated clock, with faults and crashes
+chosen by a seed that replays exactly. Not every feature needs it. Every feature is asked, and
+all code follows the day-one rules in [simulation-testing.md](simulation-testing.md) so the
+answer can be yes. The simulator and its supporting packages are built with the features that
+need them, not ahead of them.
 
 ## Resilience and testing are part of the design
 

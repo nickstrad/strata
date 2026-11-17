@@ -12,6 +12,7 @@ being given a made-up value.
 | Testing | [go-testing.md](go-testing.md) | test levels, spec tables, coverage, fuzzing, contract suites, fakes, e2e |
 | Rate limiting | [rate-limiting.md](rate-limiting.md) | fairness keys, placement, algorithms, the caller contract |
 | Backpressure | [backpressure.md](backpressure.md) | bounded queues, full-queue policy, queue age, workers |
+| Simulation testing | [simulation-testing.md](simulation-testing.md) | the day-one rules, when a feature is simulated, faults, checks |
 | Distributed algorithms | [distributed-algorithms.md](distributed-algorithms.md) | when you are writing one, the terms, the specification form |
 | Object storage | [object-storage.md](object-storage.md) | immutable data and a pointer, conditional writes, fencing, cleanup |
 | Concurrency patterns | [concurrency-patterns.md](concurrency-patterns.md) | the Go form of each pattern, lock ordering, starvation |
@@ -82,6 +83,11 @@ Full: [go-coding-style.md](go-coding-style.md) §4–5.
 - **If code holds two locks, every path takes them in the same order**; better, hold one at a
   time. Never call out (a callback, an adapter, a channel operation, I/O) while holding a lock.
 - **Every blocking operation also selects on the context.**
+- **No wall clock, ambient randomness or generated ids** in code that decides something: no
+  `time.Now`/`After`/`Sleep`/timers, no `context.WithTimeout`/`WithDeadline`, no package-level
+  `math/rand`, `crypto/rand` or uuid. Take an injected clock, random source and id generator.
+  **Order never comes from a map or from which goroutine ran first.** These are the day-one
+  rules of [simulation-testing.md](simulation-testing.md).
 - **Limit concurrency with a counted slot** (a buffered channel or a weighted semaphore),
   acquired with the context.
 
@@ -236,12 +242,15 @@ Full: [go-testing.md](go-testing.md).
 4. **Model-based fuzzing** for anything stateful; commit failing inputs to `testdata/fuzz/`. The
    owner is the first candidate: a script of commands, crashes and restores, compared with a
    plain map.
-5. **Adapter integration tests** including failure paths and error wrapping, gated by an
+5. **Deterministic simulation** where components meet: several processes on a simulated clock,
+   faults and crashes from a seed, a checker after every step. The design says whether the
+   feature is in it and why. See [simulation-testing.md](simulation-testing.md).
+6. **Adapter integration tests** including failure paths and error wrapping, gated by an
    environment variable so `go test ./...` passes without the stack (`make infra-up` starts it).
-6. **Concurrency**: `-race`; many workers on the same key for compare-and-set paths.
-7. **SQL**: every `.sql` file has a golden-output test; each constraint has an off-point test.
-8. **Timing**: assert attempt counts, not elapsed time; upper bounds have seconds of slack.
-9. **Under load and over time**: fault modes during a load run before calling a component done.
+7. **Concurrency**: `-race`; many workers on the same key for compare-and-set paths.
+8. **SQL**: every `.sql` file has a golden-output test; each constraint has an off-point test.
+9. **Timing**: assert attempt counts, not elapsed time; upper bounds have seconds of slack.
+10. **Under load and over time**: fault modes during a load run before calling a component done.
 
 ## 9. Checklist before done
 
@@ -250,6 +259,8 @@ Full: [go-testing.md](go-testing.md).
 - [ ] Errors wrapped once at the boundary; messages say what changed and whether retry is safe;
       the error class is right (unavailable / bug / bad input)
 - [ ] The feature has an agreed design in `docs/designs/`
+- [ ] The design says whether the feature is in the simulation, and why; the day-one rules in
+      [simulation-testing.md](simulation-testing.md) hold in the code
 - [ ] The eight questions in [distributed-algorithms.md](distributed-algorithms.md) are answered;
       if any is yes, there is a module specification and a test per property
 - [ ] The component design checklist in [README.md](README.md) is answered, and each answer has

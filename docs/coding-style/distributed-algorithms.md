@@ -190,7 +190,8 @@ Rules for a specification:
 
 ## Tests
 
-Each property in the specification gets a test that could fail.
+Each property in the specification gets a test that could fail. The simulation that runs them
+is described in [simulation-testing.md](simulation-testing.md).
 
 - **Safety**: checked after every step of a model-based fuzz or a deterministic simulation whose
   script includes **crash, recover, lose, delay, repeat and reorder a message, and a wrong
