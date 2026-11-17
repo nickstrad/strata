@@ -23,9 +23,9 @@ flowchart TB
     rp -- "Log records [Kafka]" --> consumer
     consumer --> builder
     builder --> writer
-    writer -- "1. Segment objects [S3]" --> obj
+    writer -- "Step 1: Segment objects [S3]" --> obj
     writer --> ckpt
-    ckpt -- "2. Checkpoint / manifest [S3]" --> obj
+    ckpt -- "Step 2: Checkpoint / manifest [S3]" --> obj
     ckpt -. "Offset is safe to expire" .-> rp
     ckpt --> report
     report -. "Reports" .-> cpapi

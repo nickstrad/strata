@@ -37,8 +37,8 @@ flowchart TB
     cpapi -- "Reads / writes [SQL]" --> pg
 
     gw -- "Forwards commands" --> owner
-    owner -- "1. Appends each write [Kafka]" --> rp
-    owner -- "2. Runs the command [RESP]" --> valkey
+    owner -- "Step 1: Appends each write [Kafka]" --> rp
+    owner -- "Step 2: Runs the command [RESP]" --> valkey
     flusher -- "Consumes the log [Kafka]" --> rp
     flusher -- "Writes segments and checkpoint [S3]" --> obj
     obj -- "Restore on start [S3]" --> owner

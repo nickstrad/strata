@@ -37,8 +37,8 @@ flowchart TB
     classify -- "Read" --> exec
     exec -- "RESP" --> valkey
 
-    boot -- "1. Reads checkpoint,<br/>snapshot and segments" --> obj
-    boot -- "2. Replays the tail after<br/>the checkpoint" --> rp
+    boot -- "Step 1: Reads checkpoint,<br/>snapshot and segments" --> obj
+    boot -- "Step 2: Replays the tail after<br/>the checkpoint" --> rp
     boot -- "Loads data" --> exec
     boot -. "Tenant ready:<br/>open its mailbox" .-> mailbox
 
