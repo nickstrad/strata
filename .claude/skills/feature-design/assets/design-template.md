@@ -76,6 +76,7 @@ Every sheet is listed. A "No" has a reason.
 | [concurrency-patterns.md](../coding-style/concurrency-patterns.md) | Yes / No | <goroutines, shared state, locks and their order, bounded concurrency> |
 | [object-storage.md](../coding-style/object-storage.md) | Yes / No | <objects written, manifest, fencing, cleanup> |
 | [production-readiness.md](../coding-style/production-readiness.md) | Yes / No | <start-up and drain, accumulators, settings and secrets, formats and versions> |
+| [authentication.md](../coding-style/authentication.md) | Yes / No | <tokens or credentials issued, carried or checked; audience; lifetime> |
 | [distributed-algorithms.md](../coding-style/distributed-algorithms.md) | Yes / No | <see section 4> |
 | [simulation-testing.md](../coding-style/simulation-testing.md) | Yes / No | <see section 6.1; the day-one rules apply either way> |
 | [go-testing.md](../coding-style/go-testing.md) | Yes | <see section 6> |
@@ -159,6 +160,14 @@ link to the rule each one comes from. Delete the subsection of a sheet marked No
 - **"Not now" answers:** <busy, draining, not ready: how each is carried and what the caller does>
 - **Formats and protocols:** <each one read or written, its version field, what an unknown version does>
 - **Release steps:** <expand, roll out, clean up for this change; what runs mixed and for how long>
+
+### 3.8 Authentication ([authentication.md](../coding-style/authentication.md))
+
+- **Callers:** <people, programs or both; how each proves who it is>
+- **Tokens and credentials:** <each one: by-value or by-reference, issuer, audience, lifetime, claims>
+- **Validation:** <where each is checked, with which library, and every check made>
+- **Storage:** <what the issuer stores (hashes); what is never logged>
+- **Withdrawal:** <what happens to live tokens when access is removed>
 
 ## 4. Distributed algorithm check
 

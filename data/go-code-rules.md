@@ -1,7 +1,7 @@
 ---
 title: Go code rules and the check gate
 summary: Read docs/coding-style/README.md before designing or writing Go; resilience sheets and tests are part of the design; use internal/assert, errs and logx; make check (gofmt, vet, race, noassert) is the gate.
-tags: [go, coding-style, dst, simulation, deterministic, design, feature-design, distributed-algorithms, testing, object-storage, slatedb, fencing, manifest, concurrency, resilience, rate-limiting, backpressure, circuit-breaker, retries, production-readiness, startup, shutdown, drain, configuration, rolling-upgrade, versioning, steady-state, assert, errs, logx, make-check]
+tags: [go, coding-style, dst, simulation, deterministic, design, feature-design, distributed-algorithms, testing, object-storage, slatedb, fencing, manifest, concurrency, resilience, rate-limiting, backpressure, circuit-breaker, retries, production-readiness, authentication, oauth, oidc, token, credentials, startup, shutdown, drain, configuration, rolling-upgrade, versioning, steady-state, assert, errs, logx, make-check]
 aliases: [style guide, test rules, noassert, fuzz, zero downtime deploy, mixed versions, graceful shutdown]
 updated: 2026-11-17
 ---
@@ -40,6 +40,11 @@ checklist.
   listener, versioned formats and the expand, roll out, clean up order so two releases can run
   together. Open it for any component that is a process, or that adds a cache, a stored format
   or a protocol.
+- `authentication.md`: the vocabulary (authorization server, resource server, bearer, by-value
+  and by-reference tokens) mapped to the control plane and gateway; short-lived access tokens,
+  the long-lived credential used only at the issuer, audience checks, validation with a
+  library, hashes in the credential store. Lists what is still open: credential form, token
+  lifetime, revocation, signing key rotation, the token on the Valkey protocol.
 - `go-coding-style.md`: the house guide with templates (layout, contracts, errors, logging,
   the top-level reporter, the Result pattern). Not edited for strata.
 - `go-testing.md`: the house testing guide (spec tables, coverage, fuzzing, contract suites,

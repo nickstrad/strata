@@ -13,6 +13,7 @@ How strata code is designed, written and tested. One line per doc; open only wha
 | [distributed-algorithms.md](distributed-algorithms.md) | **Every feature**: the eight questions that tell you whether you are writing a distributed algorithm. If yes: the vocabulary and the module specification form to use. |
 | [simulation-testing.md](simulation-testing.md) | **Every feature**: whether it goes in the deterministic simulation, the rules all code follows so that it can, the simulator's shape, the fault model, what is checked. |
 | [production-readiness.md](production-readiness.md) | A component is a process that starts, stops, is configured, is operated or is upgraded; or it adds something that accumulates, a format or a protocol: failure modes, steady state, start-up and shutdown, configuration, admin, releases with two versions running. |
+| [authentication.md](authentication.md) | A component issues, carries or checks a token or a credential: the control plane's issuer, the gateway's verifier, any login. |
 | [go-coding-style.md](go-coding-style.md) | You need detail or a template: layout, contracts, `errs`, `logx`, the Result pattern. |
 | [go-testing.md](go-testing.md) | You write tests: spec tables, coverage, fuzzing, contract suites, fakes, e2e. |
 

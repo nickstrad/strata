@@ -18,6 +18,7 @@ being given a made-up value.
 | Concurrency patterns | [concurrency-patterns.md](concurrency-patterns.md) | the Go form of each pattern, lock ordering, starvation |
 | Breakers and retries | [circuit-breakers-and-retries.md](circuit-breakers-and-retries.md) | breaker states, what to retry, backoff, unknown outcomes |
 | Production readiness | [production-readiness.md](production-readiness.md) | failure modes, steady state, start-up and shutdown, configuration, admin, versioned formats, deploys with two versions |
+| Authentication | [authentication.md](authentication.md) | token types, audience, lifetimes, validation, credential storage, what is still open |
 | Architecture | [../diagrams/README.md](../diagrams/README.md) | what the parts are and how they talk |
 
 Shared packages that implement the rules: `internal/assert` (contracts), `internal/errs`
