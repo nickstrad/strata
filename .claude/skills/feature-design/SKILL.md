@@ -46,7 +46,27 @@ it, implements it, changes it, adds to it or removes it. Then list the diagram c
 design proposes (each box, arrow, label or flow step, and its file) and the numbered open design
 questions from `docs/diagrams/README.md` that the feature touches or answers. If the feature
 does not fit the diagrams as drawn, that is a finding: record it, do not bend the design to
-hide it. Do not edit the diagrams while the design is in Draft.
+hide it.
+
+**Remake every diagram that changes.** When the design proposes a change to a diagram, draw the
+proposed version in the design document, under "Proposed diagrams":
+
+- Copy the whole current Mermaid diagram from the file in `docs/diagrams/`, apply the change, and
+  include the complete result. A reviewer must be able to see the new picture, not assemble it
+  from a list of edits.
+- Keep the existing style (the same `classDef` colours and boundaries). Mark new elements with
+  the `added` class and changed ones with `changed`, as the template shows. List removed
+  elements under the diagram.
+- Do this for each level that changes: container, component and dynamic (sequence) diagrams
+  alike. For a sequence diagram, mark new or changed steps with a `Note` or `rect` block.
+- Say which explanation text under the diagram changes too.
+- Redraw again in a later round whenever the design changes what the diagram shows.
+- Mermaid rules that have bitten before: quote every label; never start a label with `1. ` or
+  `2. ` (it renders as "Unsupported markdown: list"; write `Step 1: `); use `<br/>` for line
+  breaks. If a Mermaid renderer is available, render the diagram before presenting it; if not,
+  say in Findings that it is unrendered.
+
+Do not edit the files in `docs/diagrams/` while the design is in Draft.
 
 **Findings.** Record in section 7 everything the work turned up that a reviewer should check: a
 risk, a conflict with a diagram or a sheet, a smell from a sheet's list that the design comes
@@ -142,8 +162,9 @@ section it settles.
 Set `Status: Agreed` only when the user says so and no open question blocks implementation.
 Questions that can wait stay listed with an owner. Then:
 
-- apply the diagram changes listed in section 2.1 to `docs/diagrams/`, and resolve or add open
-  questions there;
+- replace each changed diagram in `docs/diagrams/` with its remade version from section 2.1,
+  with the `added` and `changed` marking taken off, update the explanation text under it, and
+  resolve or add open questions there;
 - add or update a kb entry for each durable decision (`kb add`, `kb edit`);
 - if a "(not set yet)" in a coding-style sheet is now decided, replace it in that sheet.
 

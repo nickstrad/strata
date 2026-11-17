@@ -9,7 +9,8 @@ leave comments as `> REVIEW: …` or in its review table. Each round answers the
 Each design states, explicitly:
 
 - which boxes and arrows of the [C4 diagrams](../diagrams/README.md) the feature works on, and
-  the diagram changes it proposes;
+  the diagram changes it proposes, with each changed diagram redrawn in full (added parts in
+  green, changed parts in orange);
 - the findings that came up while designing it;
 - which coding-style sheets apply to the feature, and which do not, with a reason;
 - for each sheet that applies (structure and errors, rate limiting, backpressure, circuit

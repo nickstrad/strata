@@ -31,8 +31,29 @@ Name the box or arrow as it is labelled in the diagram.
 A level with nothing touched says "Unchanged".
 
 **Diagram changes this design proposes:** <each box, arrow, label or step to add, change or
-remove, and in which file. "None" if the diagrams already show it. The diagrams are edited when
-the design is agreed, not before.>
+remove, and in which file. "None" if the diagrams already show it; then delete the "Proposed
+diagrams" part below.>
+
+**Proposed diagrams.** One remade diagram per diagram file that changes: the whole diagram as it
+would look, not a fragment, so it can be reviewed by eye. New elements use the `added` class,
+changed ones `changed`; removed elements are left out of the drawing and listed under it. The
+files in docs/diagrams/ are replaced with these when the design is agreed, not before.
+
+#### <02-containers.md> as proposed
+
+```mermaid
+flowchart TB
+    %% Copy the current diagram from docs/diagrams/<file>, apply the changes, then mark them:
+    %%   class newBox added
+    %%   class changedBox changed
+    %% Keep the existing classDef lines and add these two:
+    classDef added fill:#2e7d32,stroke:#1b5e20,color:#ffffff,stroke-width:3px
+    classDef changed fill:#ef6c00,stroke:#e65100,color:#ffffff,stroke-width:3px
+```
+
+Green: added. Orange: changed. **Removed:** <elements taken out, or "none">.
+**Explanation text to change under the diagram:** <which paragraphs or table rows of the diagram
+file's explanation change, and to what.>
 
 **Open design questions it touches:** <numbers from the "Open questions" list in
 docs/diagrams/README.md, and whether this design answers each one.>
