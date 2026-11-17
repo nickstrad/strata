@@ -75,6 +75,7 @@ Every sheet is listed. A "No" has a reason.
 | [circuit-breakers-and-retries.md](../coding-style/circuit-breakers-and-retries.md) | Yes / No | <dependencies called, what is retryable, unknown outcomes> |
 | [concurrency-patterns.md](../coding-style/concurrency-patterns.md) | Yes / No | <goroutines, shared state, locks and their order, bounded concurrency> |
 | [object-storage.md](../coding-style/object-storage.md) | Yes / No | <objects written, manifest, fencing, cleanup> |
+| [production-readiness.md](../coding-style/production-readiness.md) | Yes / No | <start-up and drain, accumulators, settings and secrets, formats and versions> |
 | [distributed-algorithms.md](../coding-style/distributed-algorithms.md) | Yes / No | <see section 4> |
 | [simulation-testing.md](../coding-style/simulation-testing.md) | Yes / No | <see section 6.1; the day-one rules apply either way> |
 | [go-testing.md](../coding-style/go-testing.md) | Yes | <see section 6> |
@@ -145,6 +146,19 @@ link to the rule each one comes from. Delete the subsection of a sheet marked No
 - **Cleanup:** <what may be deleted, the grace period, the upload-to-publish gap>
 - **Batching and cost:** <object size target, maximum wait>
 - **Backend assumptions:** <features relied on, and how each backend is checked>
+
+### 3.7 Production readiness ([production-readiness.md](../coding-style/production-readiness.md))
+
+- **Must survive:** <which features keep working when each dependency is down; the crackstopper for each>
+- **Node loss:** <where this component's load goes when an instance dies; what paces the recovery>
+- **Accumulators:** <each thing that grows, and what removes it; cache limits and expiry>
+- **Start-up:** <the checks before accepting work; what happens when one fails>
+- **Shutdown:** <the drain order and its budget; what a crash at each step leaves behind>
+- **Settings:** <per-environment settings, secrets, what changes at run time>
+- **Operator actions:** <each one, as a command or API call>
+- **"Not now" answers:** <busy, draining, not ready: how each is carried and what the caller does>
+- **Formats and protocols:** <each one read or written, its version field, what an unknown version does>
+- **Release steps:** <expand, roll out, clean up for this change; what runs mixed and for how long>
 
 ## 4. Distributed algorithm check
 

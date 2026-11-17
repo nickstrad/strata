@@ -80,7 +80,7 @@ check is one of them, not the main one.
   stated, never omitted: the point is to show the sheet was considered.
 - For each `Yes`, **open that sheet** and fill its subsection in the template (3.1 structure and
   errors, 3.2 rate limiting, 3.3 backpressure, 3.4 circuit breakers and retries, 3.5 concurrency,
-  3.6 object storage). Each line is a decision for *this* feature: the queue and its capacity,
+  3.6 object storage, 3.7 production readiness). Each line is a decision for *this* feature: the queue and its capacity,
   the full-queue policy, the fairness key, what is retried and by whom, the lock order, the
   publish order, the fencing token, and so on.
 - Use the sheet's "Decide before you build" table and its "In strata" section as the prompts.

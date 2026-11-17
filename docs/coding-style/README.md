@@ -12,6 +12,7 @@ How strata code is designed, written and tested. One line per doc; open only wha
 | [object-storage.md](object-storage.md) | A component reads or writes object storage: manifests, conditional writes, fencing, cleanup, and what SlateDB and OpenData do. |
 | [distributed-algorithms.md](distributed-algorithms.md) | **Every feature**: the eight questions that tell you whether you are writing a distributed algorithm. If yes: the vocabulary and the module specification form to use. |
 | [simulation-testing.md](simulation-testing.md) | **Every feature**: whether it goes in the deterministic simulation, the rules all code follows so that it can, the simulator's shape, the fault model, what is checked. |
+| [production-readiness.md](production-readiness.md) | A component is a process that starts, stops, is configured, is operated or is upgraded; or it adds something that accumulates, a format or a protocol: failure modes, steady state, start-up and shutdown, configuration, admin, releases with two versions running. |
 | [go-coding-style.md](go-coding-style.md) | You need detail or a template: layout, contracts, `errs`, `logx`, the Result pattern. |
 | [go-testing.md](go-testing.md) | You write tests: spec tables, coverage, fuzzing, contract suites, fakes, e2e. |
 
@@ -79,6 +80,10 @@ Answer these in the design, then prove each one with a test.
 5. **Deadlines.** What is the deadline of each unit of work and of each outbound call?
 6. **Retries.** Which operations are safe to retry, who retries them, and what is the budget?
 7. **Dependency down.** For each dependency: what do users see while it is down?
-8. **Shutdown.** How does it stop: drain, cancel or refuse?
+8. **Shutdown.** How does it stop: drain, cancel or refuse? What is the budget?
 9. **Signals.** Which numbers show the protection working, and which show it failing?
-10. **Tests.** Which tests force each of the answers above to happen?
+10. **Accumulation.** What does it accumulate, and what removes each thing?
+11. **Start.** What must be true before it accepts work, and what does it do when that fails?
+12. **Versions.** Which formats and protocols does it read or write, and what happens while the
+    previous release and the new one run together?
+13. **Tests.** Which tests force each of the answers above to happen?

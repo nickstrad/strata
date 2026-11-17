@@ -28,7 +28,7 @@ every `AGENTS.md` has a `CLAUDE.md` symlink beside it (`ln -s AGENTS.md CLAUDE.m
 Read `docs/coding-style/README.md` before you design, plan or write a component. It indexes the
 rules (`rules.md`, with the done checklist), the resilience sheets (`rate-limiting.md`,
 `backpressure.md`, `circuit-breakers-and-retries.md`), `concurrency-patterns.md`, `object-storage.md`, `distributed-algorithms.md`,
-`simulation-testing.md` and the full guides (`go-coding-style.md`,
+`simulation-testing.md`, `production-readiness.md` and the full guides (`go-coding-style.md`,
 `go-testing.md`).
 
 Resilience and testing are part of the design, not a pass at the end. For every component,

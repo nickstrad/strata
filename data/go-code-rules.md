@@ -1,9 +1,9 @@
 ---
 title: Go code rules and the check gate
 summary: Read docs/coding-style/README.md before designing or writing Go; resilience sheets and tests are part of the design; use internal/assert, errs and logx; make check (gofmt, vet, race, noassert) is the gate.
-tags: [go, coding-style, dst, simulation, deterministic, design, feature-design, distributed-algorithms, testing, object-storage, slatedb, fencing, manifest, concurrency, resilience, rate-limiting, backpressure, circuit-breaker, retries, assert, errs, logx, make-check]
-aliases: [style guide, test rules, noassert, fuzz]
-updated: 2026-11-16
+tags: [go, coding-style, dst, simulation, deterministic, design, feature-design, distributed-algorithms, testing, object-storage, slatedb, fencing, manifest, concurrency, resilience, rate-limiting, backpressure, circuit-breaker, retries, production-readiness, startup, shutdown, drain, configuration, rolling-upgrade, versioning, steady-state, assert, errs, logx, make-check]
+aliases: [style guide, test rules, noassert, fuzz, zero downtime deploy, mixed versions, graceful shutdown]
+updated: 2026-11-17
 ---
 
 # Go code rules and the check gate
@@ -33,6 +33,13 @@ checklist.
   streams, fakes with fault switches, crash gate, nemesis), the fault model, what the checker
   proves, the same-seed-same-trace test, shrinking and saved vectors. No simulator code exists
   yet; it is built with the first feature that needs it.
+- `production-readiness.md`: what keeps a process running and replaceable. Designed failure
+  modes and per-feature availability, what happens to load when a node dies, jitter on anything
+  periodic, "not now" answers in our own protocols, a remover for each thing that accumulates,
+  start-up before traffic and drain with a budget, configuration and secrets, a separate admin
+  listener, versioned formats and the expand, roll out, clean up order so two releases can run
+  together. Open it for any component that is a process, or that adds a cache, a stored format
+  or a protocol.
 - `go-coding-style.md`: the house guide with templates (layout, contracts, errors, logging,
   the top-level reporter, the Result pattern). Not edited for strata.
 - `go-testing.md`: the house testing guide (spec tables, coverage, fuzzing, contract suites,

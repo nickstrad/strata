@@ -17,6 +17,7 @@ being given a made-up value.
 | Object storage | [object-storage.md](object-storage.md) | immutable data and a pointer, conditional writes, fencing, cleanup |
 | Concurrency patterns | [concurrency-patterns.md](concurrency-patterns.md) | the Go form of each pattern, lock ordering, starvation |
 | Breakers and retries | [circuit-breakers-and-retries.md](circuit-breakers-and-retries.md) | breaker states, what to retry, backoff, unknown outcomes |
+| Production readiness | [production-readiness.md](production-readiness.md) | failure modes, steady state, start-up and shutdown, configuration, admin, versioned formats, deploys with two versions |
 | Architecture | [../diagrams/README.md](../diagrams/README.md) | what the parts are and how they talk |
 
 Shared packages that implement the rules: `internal/assert` (contracts), `internal/errs`
@@ -171,6 +172,22 @@ A new integration point is a design change: add a row here.
   from service for a remote dependency's outage.
 - **Shutdown has one budget.**
 
+**Running in production**
+
+The reasons and the tests: [production-readiness.md](production-readiness.md).
+
+- **Accept no work until start-up has finished.** Bad configuration exits with the usage code; a
+  missing dependency leaves the process up, not ready, and saying why.
+- **A crash and a clean stop recover through the same code.**
+- **Each thing that accumulates gets its remover in the same change**: caches have a size limit
+  and an expiry.
+- **Every stored format and every protocol between processes carries a version.** Readers are
+  deployed before writers; an unknown version is refused, never guessed. Changes go expand, roll
+  out, clean up, so the previous release and the new one can run together.
+- **Nothing makes every process act at the same moment**: refreshes and reconnects have jitter.
+- **Secrets are separate from other settings and never logged.** Admin, health and metrics
+  listen apart from tenant traffic.
+
 **Observability**
 
 - Per integration point: requests by outcome class, a latency histogram in which requests that
@@ -270,5 +287,7 @@ Full: [go-testing.md](go-testing.md).
       checkpoint writes, re-read after an unknown outcome, checksums verified
 - [ ] SQL: bind parameters, constraints in the schema, golden tests
 - [ ] Tests per §8; `make check` passes (gofmt, `go vet`, `go test -race`, `go test -tags noassert`)
+- [ ] Production readiness: start-up and drain tested; each accumulator has a remover; formats
+      and protocols versioned; the previous release and this one can run together
 - [ ] New integration point → a row in §5 and the matching contract test
 - [ ] Architecture changed → `docs/diagrams/` updated; a durable finding → a kb entry
