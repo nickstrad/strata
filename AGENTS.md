@@ -10,6 +10,9 @@ of the area you work in, then open only the files it points to:
 
 - `agent/AGENTS.md`: the agent workspace and its rules.
 - `agent/scripts/INDEX.md`: every saved script, one line each.
+- `docs/diagrams/README.md`: the architecture (C4 diagrams), one line per diagram, plus the
+  core idea and the open design questions. Read it before you change how the parts fit together,
+  and update the diagrams in the same change.
 - The knowledge store (below): search it; do not read `data/` wholesale.
 
 When you add a file to an indexed folder, add its line to that folder's index in the same change.
