@@ -82,3 +82,9 @@ The diagrams assume an answer to each of these. Each assumption is marked where 
     or the token expires. That makes the gateway smaller still (no routing table, no route sync),
     in exchange for short tokens and a resolve call from the client. The diagrams keep the routing
     table in the gateway.
+12. **Build the storage format or use SlateDB?** SlateDB already has the manifest, writer fencing,
+    compaction and cleanup, and a draft design for a Kafka-style log in front, which is strata's
+    shape. Against it: a cgo Go binding, a pre-1.0 project, and a key-value model where strata
+    has a snapshot plus a command log. See
+    [object-storage.md](../coding-style/object-storage.md). It also answers part of questions 6
+    and 7.
