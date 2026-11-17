@@ -1,6 +1,6 @@
 ---
 name: feature-design
-description: This skill should be used when the user asks to "design a feature", "design the gateway/owner/flusher/control plane", "write a design doc", "spec this out", "plan this component", "what's the test approach for X", "which coding style applies to X", or starts work on a new strata component or a change to how components interact. Produces a design document in docs/designs/ that explicitly works through each coding-style sheet that applies (structure and errors, rate limiting, backpressure, circuit breakers and retries, concurrency, object storage, distributed algorithms) with the feature's own decisions for each, plus the testing approach, then iterates on the spec and tests with the user before any code is written.
+description: This skill should be used when the user asks to "design a feature", "design the gateway/owner/flusher/control plane", "write a design doc", "spec this out", "plan this component", "what's the test approach for X", "which coding style applies to X", or starts work on a new strata component or a change to how components interact. Produces a design document saved as a Markdown file in docs/designs/ for the user to review, which names the C4 diagram elements the feature works on, records the findings, and explicitly works through each coding-style sheet that applies (structure and errors, rate limiting, backpressure, circuit breakers and retries, concurrency, object storage, distributed algorithms) with the feature's own decisions for each, plus the testing approach, then iterates on the spec and tests with the user before any code is written.
 ---
 
 # Feature design
@@ -36,8 +36,22 @@ number in `docs/designs/README.md`. Add its line to that index in the same chang
 
 ### 3. First pass (round 1): short, complete, explicit
 
-Fill every section of the template. Keep it short; depth comes in later rounds. Three sections
+Fill every section of the template. Keep it short; depth comes in later rounds. Five sections
 have rules:
+
+**C4 elements worked on.** Open the diagram files the feature touches and fill the table in
+section 2.1: for each C4 level (context, container, component, dynamic), the diagram file, the
+exact box or arrow as it is labelled there, and whether the feature leaves it unchanged, uses
+it, implements it, changes it, adds to it or removes it. Then list the diagram changes the
+design proposes (each box, arrow, label or flow step, and its file) and the numbered open design
+questions from `docs/diagrams/README.md` that the feature touches or answers. If the feature
+does not fit the diagrams as drawn, that is a finding: record it, do not bend the design to
+hide it. Do not edit the diagrams while the design is in Draft.
+
+**Findings.** Record in section 7 everything the work turned up that a reviewer should check: a
+risk, a conflict with a diagram or a sheet, a smell from a sheet's list that the design comes
+near, a gap in the docs, an assumption, a fact that was checked (and how). Each finding names
+where it came from and what the design does about it. Nothing is left only in the chat.
 
 **Coding style that applies.** Every sheet gets the same attention; the distributed-algorithm
 check is one of them, not the main one.
@@ -80,16 +94,29 @@ under Open questions, not left out.
 Answer the ten questions of the component design checklist in their own section. "Not
 applicable" needs a reason.
 
-### 4. Present and stop
+### 4. Save for review, present and stop
 
-Give the user a short summary: what the feature is; **for each sheet that applies, the two or
+**The Markdown file is the deliverable.** The specification, the decisions, the findings and the
+open questions are all saved in `docs/designs/NNNN-short-name.md` before anything is said in the
+chat. Fill "How to review this round" in section 10 with the sections that changed and what most
+needs a decision, and set `Review: Waiting for review of round N`. Then give the user the file's
+path and ask them to review it there. The chat message is a pointer to the file, not a copy of
+it.
+
+Give the user a short summary: the C4 elements the feature works on and any diagram changes it
+proposes; what the feature is; **for each sheet that applies, the two or
 three aspects of it that matter most for this feature** (for example "backpressure: the tenant
 mailbox is bounded and refuses new; concurrency: one goroutine per tenant, no lock order
 needed"); which sheets do not apply and why; whether a distributed algorithm is involved; the
-test levels chosen; and the open questions. Then ask the questions
+test levels chosen; the findings that most need a look; and the open questions. Then ask the questions
 that block the next round, most important first, at most four. Do not start implementing.
 
 ### 5. Iterate (rounds 2+)
+
+Start each round by reading the file again: the user may have edited it or left comments
+(`> REVIEW: …` inline, or rows in section 10). Copy every comment into the review table, answer
+each one in the document, and record the resolution. A comment given in the chat is recorded the
+same way. Never drop a comment without a resolution.
 
 Each round deepens one area, chosen with the user:
 
@@ -105,8 +132,9 @@ Each round deepens one area, chosen with the user:
   see when each dependency is down. For concurrency: every goroutine, lock and blocking point.
   For object storage: every object, its key, the publish order and the cleanup rule.
 
-After each round: update the document, raise `Round`, add a line to its change log, and list
-what changed and what is still open. Move an answered question from Open questions into the
+After each round: save the document, raise `Round`, add a line to its change log, add new
+findings, rewrite "How to review this round", and point the user at the file again, saying what
+changed and what is still open. Move an answered question from Open questions into the
 section it settles.
 
 ### 6. Agree
@@ -114,7 +142,8 @@ section it settles.
 Set `Status: Agreed` only when the user says so and no open question blocks implementation.
 Questions that can wait stay listed with an owner. Then:
 
-- update `docs/diagrams/` if the architecture changed, and resolve or add open questions there;
+- apply the diagram changes listed in section 2.1 to `docs/diagrams/`, and resolve or add open
+  questions there;
 - add or update a kb entry for each durable decision (`kb add`, `kb edit`);
 - if a "(not set yet)" in a coding-style sheet is now decided, replace it in that sheet.
 

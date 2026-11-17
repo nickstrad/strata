@@ -5,7 +5,7 @@
 | Status | Draft / Agreed / Implemented |
 | Round | 1 |
 | Components | <gateway, owner, flusher, control plane, …> |
-| Diagrams | <links into docs/diagrams/> |
+| Review | <Waiting for review of round N / Reviewed> |
 
 ## 1. What and why
 
@@ -14,7 +14,30 @@
 **In scope:** <…>
 **Out of scope:** <…>
 
-## 2. Behaviour
+## 2. Architecture and behaviour
+
+### 2.1 C4 elements worked on
+
+Which parts of the diagrams in [docs/diagrams/](../diagrams/README.md) this feature touches.
+Name the box or arrow as it is labelled in the diagram.
+
+| Level | Diagram | Element (box or arrow) | This feature |
+|---|---|---|---|
+| Context | [01-system-context.md](../diagrams/01-system-context.md) | | Unchanged / Uses / Implements / Changes / Adds / Removes |
+| Container | [02-containers.md](../diagrams/02-containers.md) | | |
+| Component | <03 gateway / 04 data node / 05 flusher / 06 control plane> | | |
+| Dynamic | [07-dynamic-flows.md](../diagrams/07-dynamic-flows.md) | <which flow, which steps> | |
+
+A level with nothing touched says "Unchanged".
+
+**Diagram changes this design proposes:** <each box, arrow, label or step to add, change or
+remove, and in which file. "None" if the diagrams already show it. The diagrams are edited when
+the design is agreed, not before.>
+
+**Open design questions it touches:** <numbers from the "Open questions" list in
+docs/diagrams/README.md, and whether this design answers each one.>
+
+### 2.2 Behaviour
 
 <What the feature does, as the caller sees it. Requests in, answers out, and what is promised
 about each answer. Include what a refused or failed request receives.>
@@ -191,15 +214,35 @@ section 5 maps to a test.
 **Test plan** (filled in the test round): each test's name, level, input or fault, oracle, and
 the property it proves.
 
-## 7. Alternatives
+## 7. Findings
+
+What working through the design turned up, for the reviewer to check. One row each; do not leave
+a finding only in the chat.
+
+| # | Finding | Kind | Where it came from | What the design does about it |
+|---|---|---|---|---|
+| 1 | | Risk / Conflict with a diagram / Conflict with a sheet / Smell / Gap in the docs / Assumption / Fact checked | <sheet and section, diagram, kb entry, code> | <decision, open question #, or "accepted"> |
+
+## 8. Alternatives
 
 <One line each: what was considered and why it was not chosen.>
 
-## 8. Open questions
+## 9. Open questions
 
 | # | Question | Blocks implementation? | Owner |
 |---|---|---|---|
 | 1 | | Yes / No | |
+
+## 10. Review
+
+**How to review this round:** <which sections changed and what most needs a decision.>
+
+Reviewer comments go here (or inline as `> REVIEW: …`). Each is answered in the next round and
+kept, so the record shows why the design changed.
+
+| # | Round | Section | Comment | Resolution |
+|---|---|---|---|---|
+| 1 | | | | |
 
 ## Change log
 

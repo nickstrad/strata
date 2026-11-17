@@ -3,8 +3,14 @@
 One design document per feature, one line each here. A design is written and agreed before the
 feature's code.
 
+Each design is one Markdown file, saved here for review. Review it in the file: edit it, or
+leave comments as `> REVIEW: …` or in its review table. Each round answers them.
+
 Each design states, explicitly:
 
+- which boxes and arrows of the [C4 diagrams](../diagrams/README.md) the feature works on, and
+  the diagram changes it proposes;
+- the findings that came up while designing it;
 - which coding-style sheets apply to the feature, and which do not, with a reason;
 - for each sheet that applies (structure and errors, rate limiting, backpressure, circuit
   breakers and retries, concurrency, object storage), the feature's own decisions on that
