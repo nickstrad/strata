@@ -1,7 +1,7 @@
 ---
 title: Go code rules and the check gate
 summary: Read docs/coding-style/README.md before designing or writing Go; resilience sheets and tests are part of the design; use internal/assert, errs and logx; make check (gofmt, vet, race, noassert) is the gate.
-tags: [go, coding-style, testing, object-storage, slatedb, fencing, manifest, concurrency, resilience, rate-limiting, backpressure, circuit-breaker, retries, assert, errs, logx, make-check]
+tags: [go, coding-style, design, feature-design, distributed-algorithms, testing, object-storage, slatedb, fencing, manifest, concurrency, resilience, rate-limiting, backpressure, circuit-breaker, retries, assert, errs, logx, make-check]
 aliases: [style guide, test rules, noassert, fuzz]
 updated: 2026-11-16
 ---
@@ -23,10 +23,21 @@ checklist.
 - `object-storage.md`: immutable data plus one manifest, conditional writes, fencing every
   separately written structure, unknown outcomes, safe cleanup, and how SlateDB and OpenData
   do each. Holds the open choice between building the storage format and using SlateDB.
+- `distributed-algorithms.md`: eight questions that show when a feature is a distributed
+  algorithm, the vocabulary to use (safety, liveness, uniform, epoch, fail-recovery, ◇P), and
+  the module specification form. strata reduces to Postgres, Redpanda or a conditional write
+  instead of writing its own consensus.
 - `go-coding-style.md`: the house guide with templates (layout, contracts, errors, logging,
   the top-level reporter, the Result pattern). Not edited for strata.
 - `go-testing.md`: the house testing guide (spec tables, coverage, fuzzing, contract suites,
   fakes with fault switches, e2e). Not edited for strata.
+
+## Design first
+
+A feature starts with a design in `docs/designs/`, made with the `feature-design` skill in
+`.claude/skills/feature-design/`. It lists which sheets apply, answers the distributed
+algorithm check and sets out the testing approach, and is agreed with the user in rounds
+before code.
 
 ## Shared packages
 

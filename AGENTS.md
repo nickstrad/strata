@@ -9,6 +9,7 @@ This repo uses index files so an agent does not have to load everything. Start f
 of the area you work in, then open only the files it points to:
 
 - `docs/README.md`: every doc, one line each.
+- `docs/designs/README.md`: every feature design and its status.
 - `agent/AGENTS.md`: the agent workspace and its rules.
 - `agent/scripts/INDEX.md`: every saved script, one line each.
 - `docs/diagrams/README.md`: the architecture (C4 diagrams), one line per diagram, plus the
@@ -26,13 +27,25 @@ every `AGENTS.md` has a `CLAUDE.md` symlink beside it (`ln -s AGENTS.md CLAUDE.m
 
 Read `docs/coding-style/README.md` before you design, plan or write a component. It indexes the
 rules (`rules.md`, with the done checklist), the resilience sheets (`rate-limiting.md`,
-`backpressure.md`, `circuit-breakers-and-retries.md`), `concurrency-patterns.md`, `object-storage.md` and the full guides (`go-coding-style.md`,
+`backpressure.md`, `circuit-breakers-and-retries.md`), `concurrency-patterns.md`, `object-storage.md`, `distributed-algorithms.md` and the full guides (`go-coding-style.md`,
 `go-testing.md`).
 
 Resilience and testing are part of the design, not a pass at the end. For every component,
 answer the component design checklist in that README (what is bounded, what a refused caller
 gets, deadlines, what is safe to retry, what users see when a dependency is down), and write
 the tests the sheets name in the same change.
+
+**Design before code.** A feature starts with a design in `docs/designs/`, made with the
+`feature-design` skill (`.claude/skills/feature-design/SKILL.md`; follow that file by hand if
+your tool has no skills). The design lists which coding-style sheets apply and which do not,
+answers whether a distributed algorithm is being written, and sets out the testing approach.
+It is refined with the user in rounds and agreed before implementation starts.
+
+**Say when it is a distributed algorithm.** Answer the eight questions in
+`docs/coding-style/distributed-algorithms.md` for every feature. If any answer is yes, say so,
+name the abstraction, and write the module specification in that sheet's terms (safety,
+liveness, uniform, epoch, stable storage) before writing code. strata does not implement its
+own consensus, total-order broadcast or failure detector.
 
 Use the shared packages: `internal/assert` (contracts), `internal/errs` (errors), `internal/logx`
 (logs and the top-level reporter). `make check` is the gate before a change is done: gofmt,
