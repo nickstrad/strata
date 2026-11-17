@@ -1,0 +1,76 @@
+# Local development infrastructure for strata.
+# Every port is published on 127.0.0.1 only. `make help` lists the targets.
+name: strata
+
+services:
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.54
+    command: >-
+      server
+      -dir=/data
+      -ip=seaweedfs
+      -ip.bind=0.0.0.0
+      -master.volumeSizeLimitMB=1024
+      -volume.max=0
+      -filer
+      -s3
+    ports:
+      - "127.0.0.1:9333:9333"   # master
+      - "127.0.0.1:8888:8888"   # filer
+      - "127.0.0.1:8333:8333"   # S3 API
+    volumes:
+      - seaweedfs-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9333/cluster/status"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  redpanda:
+    image: redpandadata/redpanda:v26.2.7
+    command:
+      - redpanda
+      - start
+      - --mode=dev-container
+      - --smp=1
+      - --default-log-level=info
+      - --kafka-addr=internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr=internal://redpanda:9092,external://localhost:19092
+      - --pandaproxy-addr=internal://0.0.0.0:8082,external://0.0.0.0:18082
+      - --advertise-pandaproxy-addr=internal://redpanda:8082,external://localhost:18082
+      - --schema-registry-addr=internal://0.0.0.0:8081,external://0.0.0.0:18081
+      - --rpc-addr=redpanda:33145
+      - --advertise-rpc-addr=redpanda:33145
+    ports:
+      - "127.0.0.1:19092:19092" # Kafka API
+      - "127.0.0.1:18081:18081" # Schema Registry
+      - "127.0.0.1:18082:18082" # HTTP Proxy
+      - "127.0.0.1:19644:9644"  # Admin API
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -E 'Healthy:.+true' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  valkey:
+    image: valkey/valkey:9.1.3-alpine
+    command: ["valkey-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  seaweedfs-data:
+  redpanda-data:
+  valkey-data:

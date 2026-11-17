@@ -1,12 +1,35 @@
 # strata
 
-Go project. Module `github.com/nickstrad/strata`; the entry point is `cmd/strata`. `make build`,
-`make test`, `make vet`.
+Go project. Module `github.com/nickstrad/strata`; the entry point is `cmd/strata`. `make help`
+lists the targets (Go: `build`, `test`, `vet`; local infrastructure: `infra-*`).
+
+## Keep context small: read indexes first
+
+This repo uses index files so an agent does not have to load everything. Start from the index
+of the area you work in, then open only the files it points to:
+
+- `agent/AGENTS.md`: the agent workspace and its rules.
+- `agent/scripts/INDEX.md`: every saved script, one line each.
+- The knowledge store (below): search it; do not read `data/` wholesale.
+
+When you add a file to an indexed folder, add its line to that folder's index in the same change.
+
+Agent instructions live in `AGENTS.md` files. Claude Code reads `CLAUDE.md`, not `AGENTS.md`, so
+every `AGENTS.md` has a `CLAUDE.md` symlink beside it (`ln -s AGENTS.md CLAUDE.md`). Edit
+`AGENTS.md`; never replace the symlink with a copy.
 
 ## Workflow
 
 `main` is protected: every change goes through a pull request. Work on a branch in a worktree
 under `.claude/worktrees/<branch>`, push the branch, and open a PR with `gh pr create`.
+
+## Agent workspace (`agent/`)
+
+`agent/` holds what agents make for their own use, outside the product code. Read
+`agent/AGENTS.md` before you add to it. In short: a script you write ad hoc to check, test or
+inspect something is saved in `agent/scripts/` and listed in `agent/scripts/INDEX.md`. Write
+scripts in Go, unless the script mostly runs other commands (docker, make, curl, git), in which
+case write it in Bash.
 
 ## Knowledge store (kb)
 
@@ -23,6 +46,14 @@ its tools, and before adding a finding (prefer updating an existing entry).
 - Optional: `kb feedback <search_id> <rank> --useful` (or `--not-useful`, or `<search_id> --none`)
   records whether a search helped.
 - Run `kb help` or `kb <command> --help` for details.
+
+**Keep the store current.** Updating kb is part of every change, not a separate task:
+
+- When a change makes an entry wrong or incomplete, edit that entry (`kb edit <path>`) in the
+  same change, and set its `updated:` date.
+- When you learn something durable and non-obvious (a decision, a port, a gotcha, how a tool
+  behaves here), add an entry, or extend the closest existing one.
+- When an entry is replaced, list the old one under `supersedes` in the new entry's front matter.
 
 The store lives in `.kb/` (config, committed) and `data/` (entries, committed). The index
 database `.kb/stores/*/kb.sqlite` is derived and ignored; after a fresh clone run `kb reindex --all`.
