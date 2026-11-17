@@ -13,3 +13,5 @@ go.work.sum
 .DS_Store
 .idea/
 .vscode/
+coverage.out
+*.test

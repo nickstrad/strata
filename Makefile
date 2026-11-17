@@ -2,7 +2,7 @@ COMPOSE ?= docker compose
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build run test fmt vet \
+.PHONY: help build run test race noassert fmt vet check fuzz cover \
 	infra-up infra-down infra-restart infra-ps infra-logs infra-pull infra-clean \
 	redpanda-topics valkey-cli seaweedfs-status psql
 
@@ -20,11 +20,26 @@ run: ## Run strata
 test: ## Run the tests
 	go test ./...
 
+race: ## Run the tests with the race detector
+	go test -race ./...
+
+noassert: ## Vet and test with assertions compiled out
+	go vet -tags noassert ./... && go test -tags noassert ./...
+
 fmt: ## Format the code
 	gofmt -w .
 
 vet: ## Run go vet
 	go vet ./...
+
+check: vet race noassert ## The gate before done: gofmt, vet, race tests, noassert tests
+	@test -z "$$(gofmt -l .)" || (echo "needs gofmt:"; gofmt -l .; exit 1)
+
+fuzz: ## Run one fuzz target: make fuzz F=FuzzName P=./internal/pkg [T=30s]
+	go test -run='^$$' -fuzz=$(F) -fuzztime=$(or $(T),30s) $(P)
+
+cover: ## Coverage per function and total
+	go test -coverpkg=./... -coverprofile=coverage.out ./... && go tool cover -func=coverage.out | tail -1
 
 ## Infrastructure (compose.yaml)
 

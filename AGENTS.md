@@ -1,13 +1,14 @@
 # strata
 
 Go project. Module `github.com/nickstrad/strata`; the entry point is `cmd/strata`. `make help`
-lists the targets (Go: `build`, `test`, `vet`; local infrastructure: `infra-*`).
+lists the targets (Go: `build`, `test`, `check`, `fuzz`, `cover`; local infrastructure: `infra-*`).
 
 ## Keep context small: read indexes first
 
 This repo uses index files so an agent does not have to load everything. Start from the index
 of the area you work in, then open only the files it points to:
 
+- `docs/README.md`: every doc, one line each.
 - `agent/AGENTS.md`: the agent workspace and its rules.
 - `agent/scripts/INDEX.md`: every saved script, one line each.
 - `docs/diagrams/README.md`: the architecture (C4 diagrams), one line per diagram, plus the
@@ -20,6 +21,14 @@ When you add a file to an indexed folder, add its line to that folder's index in
 Agent instructions live in `AGENTS.md` files. Claude Code reads `CLAUDE.md`, not `AGENTS.md`, so
 every `AGENTS.md` has a `CLAUDE.md` symlink beside it (`ln -s AGENTS.md CLAUDE.md`). Edit
 `AGENTS.md`; never replace the symlink with a copy.
+
+## Go code
+
+Read `docs/coding-style.md` before you plan or write Go code, and follow its checklist. The full
+guides are `docs/go-coding-style.md` and `docs/go-testing.md`; open them for detail or a template.
+Use the shared packages: `internal/assert` (contracts), `internal/errs` (errors), `internal/logx`
+(logs and the top-level reporter). `make check` is the gate before a change is done: gofmt,
+`go vet`, `go test -race`, and the same tests with `-tags noassert`.
 
 ## Workflow
 
