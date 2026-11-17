@@ -24,8 +24,16 @@ every `AGENTS.md` has a `CLAUDE.md` symlink beside it (`ln -s AGENTS.md CLAUDE.m
 
 ## Go code
 
-Read `docs/coding-style.md` before you plan or write Go code, and follow its checklist. The full
-guides are `docs/go-coding-style.md` and `docs/go-testing.md`; open them for detail or a template.
+Read `docs/coding-style/README.md` before you design, plan or write a component. It indexes the
+rules (`rules.md`, with the done checklist), the resilience sheets (`rate-limiting.md`,
+`backpressure.md`, `circuit-breakers-and-retries.md`), `concurrency-patterns.md`, `object-storage.md` and the full guides (`go-coding-style.md`,
+`go-testing.md`).
+
+Resilience and testing are part of the design, not a pass at the end. For every component,
+answer the component design checklist in that README (what is bounded, what a refused caller
+gets, deadlines, what is safe to retry, what users see when a dependency is down), and write
+the tests the sheets name in the same change.
+
 Use the shared packages: `internal/assert` (contracts), `internal/errs` (errors), `internal/logx`
 (logs and the top-level reporter). `make check` is the gate before a change is done: gofmt,
 `go vet`, `go test -race`, and the same tests with `-tags noassert`.

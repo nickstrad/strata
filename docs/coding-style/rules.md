@@ -10,7 +10,12 @@ being given a made-up value.
 |---|---|---|
 | House Go style | [go-coding-style.md](go-coding-style.md) | layout, domain vs integration, contracts, errors, logging, concurrency, with templates |
 | Testing | [go-testing.md](go-testing.md) | test levels, spec tables, coverage, fuzzing, contract suites, fakes, e2e |
-| Architecture | [diagrams/README.md](diagrams/README.md) | what the parts are and how they talk |
+| Rate limiting | [rate-limiting.md](rate-limiting.md) | fairness keys, placement, algorithms, the caller contract |
+| Backpressure | [backpressure.md](backpressure.md) | bounded queues, full-queue policy, queue age, workers |
+| Object storage | [object-storage.md](object-storage.md) | immutable data and a pointer, conditional writes, fencing, cleanup |
+| Concurrency patterns | [concurrency-patterns.md](concurrency-patterns.md) | the Go form of each pattern, lock ordering, starvation |
+| Breakers and retries | [circuit-breakers-and-retries.md](circuit-breakers-and-retries.md) | breaker states, what to retry, backoff, unknown outcomes |
+| Architecture | [../diagrams/README.md](../diagrams/README.md) | what the parts are and how they talk |
 
 Shared packages that implement the rules: `internal/assert` (contracts), `internal/errs`
 (well-formed errors), `internal/logx` (JSON logs, log IDs, the top-level reporter).
@@ -73,12 +78,23 @@ Full: [go-coding-style.md](go-coding-style.md) §4–5.
 - **Waiting is not working**: if a caller gives up, the work it started is interrupted or bounded
   too.
 
-Full: [go-coding-style.md](go-coding-style.md) §6.
+- **If code holds two locks, every path takes them in the same order**; better, hold one at a
+  time. Never call out (a callback, an adapter, a channel operation, I/O) while holding a lock.
+- **Every blocking operation also selects on the context.**
+- **Limit concurrency with a counted slot** (a buffered channel or a weighted semaphore),
+  acquired with the context.
+
+Full: [go-coding-style.md](go-coding-style.md) §6; patterns, deadlock and starvation:
+[concurrency-patterns.md](concurrency-patterns.md).
 
 ## 5. Integration points: timeouts, retries, backpressure
 
 Every call that leaves the process and every queue follows these rules. Integration points are
 where failures start, and a missing timeout is how they spread: a dependency's hang becomes ours.
+This section is the summary. The reasons, the decisions to make and the tests to write are in
+[rate-limiting.md](rate-limiting.md), [backpressure.md](backpressure.md) and
+[circuit-breakers-and-retries.md](circuit-breakers-and-retries.md). Work through the component
+design checklist in [README.md](README.md) when you design a component.
 
 | Point | On the request path? | Who retries |
 |---|---|---|
@@ -162,7 +178,8 @@ defaults table here.
 
 ## 6. Object storage
 
-Object storage is the source of truth, so these are correctness rules.
+Object storage is the source of truth, so these are correctness rules. The reasons, the
+patterns and what SlateDB and OpenData do: [object-storage.md](object-storage.md).
 
 - **One tenant owns one prefix**, built in one function. Compute names; no LIST on a request path.
 - **Write data first, publish the pointer second, trust only the pointer.** The flusher writes
@@ -231,6 +248,8 @@ Full: [go-testing.md](go-testing.md).
 - [ ] Input validated at the edge; contracts documented and asserted where impactful
 - [ ] Errors wrapped once at the boundary; messages say what changed and whether retry is safe;
       the error class is right (unavailable / bug / bad input)
+- [ ] The component design checklist in [README.md](README.md) is answered, and each answer has
+      a test
 - [ ] Every remote call has a deadline; one retry layer; every queue bounded and shedding
 - [ ] Object storage: names from one function, data before pointer, conditional and fenced
       checkpoint writes, re-read after an unknown outcome, checksums verified

@@ -1,7 +1,7 @@
 ---
 title: Go code rules and the check gate
-summary: Read docs/coding-style.md before writing Go; use internal/assert, errs and logx; make check (gofmt, vet, race, noassert) is the gate.
-tags: [go, coding-style, testing, assert, errs, logx, make-check]
+summary: Read docs/coding-style/README.md before designing or writing Go; resilience sheets and tests are part of the design; use internal/assert, errs and logx; make check (gofmt, vet, race, noassert) is the gate.
+tags: [go, coding-style, testing, object-storage, slatedb, fencing, manifest, concurrency, resilience, rate-limiting, backpressure, circuit-breaker, retries, assert, errs, logx, make-check]
 aliases: [style guide, test rules, noassert, fuzz]
 updated: 2026-11-16
 ---
@@ -10,10 +10,22 @@ updated: 2026-11-16
 
 ## Where the rules are
 
-- `docs/coding-style.md`: the short rules in strata's terms, with a checklist. Read it first.
-- `docs/go-coding-style.md`: the house guide with templates (layout, contracts, errors, logging,
+All in `docs/coding-style/`; `README.md` there is the index and holds the component design
+checklist.
+
+- `rules.md`: the short rules in strata's terms, with the done checklist. Read it first.
+- `rate-limiting.md`, `backpressure.md`, `circuit-breakers-and-retries.md`: the main points of
+  each pattern, the decisions to make, how each applies to the gateway, owner, flusher and
+  control plane, what to measure and which tests to write. Resilience and testing are designed
+  in with each component, not added afterwards.
+- `concurrency-patterns.md`: the Go form of each synchronization pattern, lock ordering,
+  starvation, and which tests catch what (`-race` finds races, not deadlocks).
+- `object-storage.md`: immutable data plus one manifest, conditional writes, fencing every
+  separately written structure, unknown outcomes, safe cleanup, and how SlateDB and OpenData
+  do each. Holds the open choice between building the storage format and using SlateDB.
+- `go-coding-style.md`: the house guide with templates (layout, contracts, errors, logging,
   the top-level reporter, the Result pattern). Not edited for strata.
-- `docs/go-testing.md`: the house testing guide (spec tables, coverage, fuzzing, contract suites,
+- `go-testing.md`: the house testing guide (spec tables, coverage, fuzzing, contract suites,
   fakes with fault switches, e2e). Not edited for strata.
 
 ## Shared packages
@@ -33,4 +45,4 @@ updated: 2026-11-16
 ## Not built yet
 
 A fault harness (a TCP fault proxy and a misbehaving fake S3), circuit breakers, a retry package,
-and per-dependency deadline defaults. `docs/coding-style.md` marks these.
+a rate limiter, and per-dependency deadline defaults. The docs mark these "(not set yet)".
