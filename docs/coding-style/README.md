@@ -10,6 +10,7 @@ How strata code is designed, written and tested. One line per doc; open only wha
 | [circuit-breakers-and-retries.md](circuit-breakers-and-retries.md) | A component calls anything over the network. |
 | [concurrency-patterns.md](concurrency-patterns.md) | A component has goroutines that share state or wait for each other: the Go form of each pattern, lock ordering, starvation. |
 | [object-storage.md](object-storage.md) | A component reads or writes object storage: manifests, conditional writes, fencing, cleanup, and what SlateDB and OpenData do. |
+| [distributed-algorithms.md](distributed-algorithms.md) | **Every feature**: the eight questions that tell you whether you are writing a distributed algorithm. If yes: the vocabulary and the module specification form to use. |
 | [go-coding-style.md](go-coding-style.md) | You need detail or a template: layout, contracts, `errs`, `logx`, the Result pattern. |
 | [go-testing.md](go-testing.md) | You write tests: spec tables, coverage, fuzzing, contract suites, fakes, e2e. |
 

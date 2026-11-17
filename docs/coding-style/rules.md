@@ -12,6 +12,7 @@ being given a made-up value.
 | Testing | [go-testing.md](go-testing.md) | test levels, spec tables, coverage, fuzzing, contract suites, fakes, e2e |
 | Rate limiting | [rate-limiting.md](rate-limiting.md) | fairness keys, placement, algorithms, the caller contract |
 | Backpressure | [backpressure.md](backpressure.md) | bounded queues, full-queue policy, queue age, workers |
+| Distributed algorithms | [distributed-algorithms.md](distributed-algorithms.md) | when you are writing one, the terms, the specification form |
 | Object storage | [object-storage.md](object-storage.md) | immutable data and a pointer, conditional writes, fencing, cleanup |
 | Concurrency patterns | [concurrency-patterns.md](concurrency-patterns.md) | the Go form of each pattern, lock ordering, starvation |
 | Breakers and retries | [circuit-breakers-and-retries.md](circuit-breakers-and-retries.md) | breaker states, what to retry, backoff, unknown outcomes |
@@ -248,6 +249,9 @@ Full: [go-testing.md](go-testing.md).
 - [ ] Input validated at the edge; contracts documented and asserted where impactful
 - [ ] Errors wrapped once at the boundary; messages say what changed and whether retry is safe;
       the error class is right (unavailable / bug / bad input)
+- [ ] The feature has an agreed design in `docs/designs/`
+- [ ] The eight questions in [distributed-algorithms.md](distributed-algorithms.md) are answered;
+      if any is yes, there is a module specification and a test per property
 - [ ] The component design checklist in [README.md](README.md) is answered, and each answer has
       a test
 - [ ] Every remote call has a deadline; one retry layer; every queue bounded and shedding
