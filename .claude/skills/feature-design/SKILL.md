@@ -1,6 +1,6 @@
 ---
 name: feature-design
-description: This skill should be used when the user asks to "design a feature", "design the gateway/owner/flusher/control plane", "write a design doc", "spec this out", "plan this component", "what's the test approach for X", "which coding style applies to X", or starts work on a new strata component or a change to how components interact. Produces a design document saved as a Markdown file in docs/designs/ for the user to review, which names the C4 diagram elements the feature works on, records the findings, and explicitly works through each coding-style sheet that applies (structure and errors, rate limiting, backpressure, circuit breakers and retries, concurrency, object storage, distributed algorithms) with the feature's own decisions for each, plus the testing approach, then iterates on the spec and tests with the user before any code is written.
+description: This skill should be used when the user asks to "design a feature", "design the gateway/owner/flusher/control plane", "write a design doc", "spec this out", "plan this component", "what's the test approach for X", "which coding style applies to X", or starts work on a new strata component or a change to how components interact. Produces a design document saved as a Markdown file in docs/designs/ for the user to review, which names the C4 diagram elements the feature works on, records the findings, and explicitly works through each coding-style sheet that applies (structure and errors, rate limiting, backpressure, circuit breakers and retries, concurrency, object storage, distributed algorithms) with the feature's own decisions for each, plus the testing approach led by whether and how the feature goes into the deterministic simulation (DST), then iterates on the spec and tests with the user before any code is written.
 ---
 
 # Feature design
@@ -36,7 +36,7 @@ number in `docs/designs/README.md`. Add its line to that index in the same chang
 
 ### 3. First pass (round 1): short, complete, explicit
 
-Fill every section of the template. Keep it short; depth comes in later rounds. Five sections
+Fill every section of the template. Keep it short; depth comes in later rounds. Six sections
 have rules:
 
 **C4 elements worked on.** Open the diagram files the feature touches and fill the table in
@@ -104,7 +104,25 @@ a deadline on each step.
 
 If a new agreement protocol seems to be needed, stop and raise it with the user before going on.
 
-**Testing approach.** Fill the table: one row per test level in the template, each with what it
+**Simulation first.** Deterministic simulation testing drives strata's testing, so decide it
+before the other levels. Open `docs/coding-style/simulation-testing.md` and answer in section
+6.1 whether the feature goes in the simulation, with the reason. The default is yes when the
+distributed-algorithm check has a "yes", or the feature decides from time, touches stable
+storage, takes part in ownership, ordering or hand-over, or has a queue or background loop.
+
+- If yes, fill the simulation plan: processes, fakes, workload and marks, faults (always both
+  "failed" and "applied, reply lost" for each external call), knobs drawn from the seed, the
+  bounds faults stay inside, the properties checked each step and at the end, the liveness
+  check, a mutant per property, and the determinism risks.
+- List the simulator code the feature needs that does not exist yet (seams, fakes, loop,
+  checker). It is built as part of this feature. Do not build it ahead of a feature.
+- If no, say why, and name what covers the feature instead.
+- Either way, confirm the day-one rules for the feature's code.
+
+Not everything needs simulation. A pure function, an adapter and command-line wiring do not.
+Say so plainly; do not stretch a feature into the simulation to tick the box.
+
+**Testing approach.** Fill the table in 6.2: one row per test level in the template, each with what it
 covers for this feature and which property, rule or checklist answer it proves. Take the tests
 from the "Tests" section of each sheet that applies. Then the traceability list: every decision
 in the coding-style subsections, every property from the module specification and every answer
@@ -127,8 +145,8 @@ Give the user a short summary: the C4 elements the feature works on and any diag
 proposes; what the feature is; **for each sheet that applies, the two or
 three aspects of it that matter most for this feature** (for example "backpressure: the tenant
 mailbox is bounded and refuses new; concurrency: one goroutine per tenant, no lock order
-needed"); which sheets do not apply and why; whether a distributed algorithm is involved; the
-test levels chosen; the findings that most need a look; and the open questions. Then ask the questions
+needed"); which sheets do not apply and why; whether a distributed algorithm is involved; whether
+the feature goes in the simulation and what that needs built; the test levels chosen; the findings that most need a look; and the open questions. Then ask the questions
 that block the next round, most important first, at most four. Do not start implementing.
 
 ### 5. Iterate (rounds 2+)
@@ -145,7 +163,9 @@ Each round deepens one area, chosen with the user:
   the crash points and the zombie case.
 - **Test round**: turn the test table into a test plan. Name each test, its level, its fault or
   input, its oracle and the property it proves. Add the fault table for each adapter, the
-  model-based fuzz script format, and what is checked after every step.
+  model-based fuzz script format, and what is checked after every step. Deepen the simulation
+  plan: the nemesis schedule, the checker's model and how it treats unknown outcomes, the
+  mutants, and the seeds run per change and in the swarm.
 - **Style round** (one sheet at a time, or all that apply): go back through a sheet's rules and
   smells against the design and deepen its subsection. For rate limiting, backpressure and
   breakers this means limits, deadlines, queue sizes, breaker and retry settings, and what users

@@ -76,6 +76,7 @@ Every sheet is listed. A "No" has a reason.
 | [concurrency-patterns.md](../coding-style/concurrency-patterns.md) | Yes / No | <goroutines, shared state, locks and their order, bounded concurrency> |
 | [object-storage.md](../coding-style/object-storage.md) | Yes / No | <objects written, manifest, fencing, cleanup> |
 | [distributed-algorithms.md](../coding-style/distributed-algorithms.md) | Yes / No | <see section 4> |
+| [simulation-testing.md](../coding-style/simulation-testing.md) | Yes / No | <see section 6.1; the day-one rules apply either way> |
 | [go-testing.md](../coding-style/go-testing.md) | Yes | <see section 6> |
 
 Each sheet marked Yes gets its subsection below, filled in with this feature's decisions and a
@@ -208,13 +209,48 @@ From [coding-style/README.md](../coding-style/README.md). "Not applicable" needs
 
 ## 6. Testing approach
 
+### 6.1 Simulation
+
+From [simulation-testing.md](../coding-style/simulation-testing.md). Decide this first; the
+other levels are chosen around it.
+
+**In the deterministic simulation? Yes / No.** <Why. The default is yes when section 4 has a
+"yes", or the feature decides from time, touches stable storage, takes part in ownership,
+ordering or hand-over, or has a queue or background loop.>
+
+<If No, delete the rest of 6.1. The day-one rules below still apply.>
+
+- **Processes in the run:** <which strata processes, how many of each>
+- **Fakes needed:** <each port, what its fake must guarantee, new or existing>
+- **Workload:** <operations the simulated clients send; the mark each write leaves so the checker
+  can find it>
+- **Faults:** <per dependency: fails / applied but reply lost / lands late / stall / outage;
+  network: delay, loss, duplicate, partition; process: crash, restart, zombie, takeover>
+- **Knobs drawn from the seed:** <node, tenant and client counts; intervals, batch and queue
+  sizes, timeouts; fault classes and rates>
+- **Fault bounds:** <what the design claims to survive, so faults stay inside it>
+- **Checked after every step:** <safety properties from section 4, by number>
+- **Checked at the end:** <history checks; linearizability; how unknown outcomes are treated>
+- **Liveness:** <what must converge once faults stop, and within what bound>
+- **Mutants:** <for each property, the deliberately broken variant the simulation must catch>
+- **Determinism risks:** <maps iterated, goroutines woken together, loops started together; how
+  each is ordered>
+- **New code this needs:** <seams, fakes, simulator parts not built yet. They are built with
+  this feature.>
+
+**Day-one rules** (every feature, simulated or not): <confirm no wall clock, no
+`context.WithTimeout`, no ambient randomness or generated ids, no order from a map or from
+goroutine scheduling, worker counts settable to 1; list any justified exception.>
+
+### 6.2 Levels
+
 | Level | For this feature | Proves |
 |---|---|---|
 | Spec tables (partitions, on and off points) | | |
 | Structural (uncovered blocks reviewed) | | |
-| Fakes with fault switches + contract suite | | |
+| Fakes with fault switches + contract suite (fake and real) | | |
 | Model-based fuzz / property | | |
-| Deterministic simulation (crash, recover, lose, delay, repeat, reorder, wrong suspicion) | | |
+| Deterministic simulation (see 6.1) | | |
 | Adapter integration, incl. fault harness | | |
 | Concurrency (`-race`, many workers on one key) | | |
 | End to end (real processes, compose stack) | | |

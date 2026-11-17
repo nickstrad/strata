@@ -18,7 +18,9 @@ Each design states, explicitly:
   sheet's points;
 - whether a distributed algorithm is being written, and if so its specification in the terms of
   [distributed-algorithms.md](../coding-style/distributed-algorithms.md);
-- the testing approach, with every property traced to a test.
+- whether the feature goes in the deterministic simulation, and if so its faults, checks and
+  mutants ([simulation-testing.md](../coding-style/simulation-testing.md));
+- the testing approach, with every decision and property traced to a test.
 
 To start one, use the `feature-design` skill (`.claude/skills/feature-design/SKILL.md`). It
 copies the template, fills a short first draft, then iterates with you in rounds: specification,
