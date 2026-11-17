@@ -13,9 +13,9 @@ sequenceDiagram
     participant R as Redpanda
     participant V as Valkey process
 
-    C->>G: SET k v [RESP]
-    G->>G: Tenant from the connection, look up its owner
-    G->>O: SET k v for tenant T
+    C->>G: SET k v [RESP] with tenant token (JWT)
+    G->>G: Verify the token, read tenant T from its claims, look up T's owner
+    G->>O: SET k v with T's tenant context
     O->>R: Append the write to T's log
     R-->>O: Ack (durable, replicated)
     O->>V: SET k v
@@ -24,7 +24,8 @@ sequenceDiagram
     G-->>C: OK
 ```
 
-The write is durable at step 5, before Valkey sees it. The client gets `OK` only after both the
+The client got its token from the control plane beforehand; the gateway verifies it with cached
+signing keys, so the control plane is not called here. The write is durable at step 5, before Valkey sees it. The client gets `OK` only after both the
 log and Valkey have it. A read skips steps 4 and 5.
 
 ## A flush

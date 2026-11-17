@@ -15,19 +15,24 @@ zooms into one box of the level above.
 
 ## The idea in one paragraph
 
-strata is multi-tenant Valkey as a service. Clients speak the normal Valkey wire protocol to a
-**gateway**, which maps each tenant to the **data node** that currently owns its data. A data node
+strata is multi-tenant Valkey as a service. Clients send Valkey commands, with a tenant token
+(JWT) issued by the control plane, to a **gateway**. The gateway checks the token and maps the
+tenant in it to the **data node** that currently owns its data. A data node
 is a Valkey process with an **owner** process attached to it. The owner appends every write to a
 **Redpanda** topic and then runs the command in Valkey. A background **flusher** moves the log
 from Redpanda to **object storage**. A **control plane** handles tenants, auth, observability and
 the mapping of tenants to resources.
 
-Three rules follow from that:
+Four rules follow from that:
 
-1. **Object storage is the ultimate source of truth.** Everything else can be rebuilt from it.
-2. **Redpanda is the fast durable log.** It holds the writes that are not in object storage yet,
+- **The control plane owns auth.** It issues the tenant token; requests carry it; the gateway
+  and owners act on its claims and hold no credentials. This is the control plane / application
+  plane model from Tod Golding's *Building Multi-Tenant SaaS Architectures* (O'Reilly, 2024).
+
+- **Object storage is the ultimate source of truth.** Everything else can be rebuilt from it.
+- **Redpanda is the fast durable log.** It holds the writes that are not in object storage yet,
    and it replaces Valkey's AOF and any replication logic of our own.
-3. **Valkey is disposable compute.** It runs with no persistence. A data node starts empty, loads
+- **Valkey is disposable compute.** It runs with no persistence. A data node starts empty, loads
    a tenant from object storage, replays the rest from Redpanda, and serves. Scaling out is
    starting more data nodes.
 
@@ -63,3 +68,17 @@ The diagrams assume an answer to each of these. Each assumption is marked where 
    a tenant. The diagrams show an ownership lease from the control plane; the fencing rule
    (an epoch in every log record, for example) is not designed yet.
 8. **Control plane store.** The diagrams assume Postgres, which is in `compose.yaml`.
+9. **How the token travels with Valkey commands.** The Valkey wire protocol (RESP) has no
+   per-request header to put a JWT in. With a stock Valkey client the one place a client can
+   present a value is `AUTH`, once per connection, with the JWT as the password. A token on every
+   request needs something else: a wrapper command, or a client-facing API that is not raw RESP.
+   The diagrams say "with a tenant token" and do not pick one.
+10. **Token lifetime and revocation.** The gateway verifies tokens without calling the control
+    plane, so a revoked token works until it expires. Short lifetimes plus refresh is the usual
+    answer.
+11. **Should the token carry the route?** The control plane could put the owning node and an
+    ownership epoch in a short-lived token, and the gateway would route on that claim with no
+    routing table. Clients would ask the control plane again when a node answers "not the owner"
+    or the token expires. That makes the gateway smaller still (no routing table, no route sync),
+    in exchange for short tokens and a resolve call from the client. The diagrams keep the routing
+    table in the gateway.

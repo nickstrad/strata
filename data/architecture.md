@@ -12,8 +12,9 @@ The diagrams and full explanations are in `docs/diagrams/` (start at `docs/diagr
 
 ## Parts
 
-- **Gateway**: speaks the Valkey wire protocol (RESP) to clients. Maps a tenant to the data node
-  that currently owns its data and forwards commands to that node's owner. Holds no tenant data.
+- **Gateway**: kept simple. Checks the tenant token (JWT) on a request, reads the tenant from its
+  claims, maps the tenant to the data node that currently owns its data and forwards the commands
+  to that node's owner. Does not interpret commands. Holds no tenant data and no credentials.
 - **Data node**: a Valkey process (persistence off) plus an **owner** process attached to it,
   actor-like. All commands go through the owner. Data nodes are the horizontally scaled compute.
 - **Redpanda**: the durable, replicated write log. Replaces Valkey AOF and home-made replication.
@@ -21,7 +22,11 @@ The diagrams and full explanations are in `docs/diagrams/` (start at `docs/diagr
   and writes a checkpoint (the flushed offset).
 - **Object storage**: the ultimate source of truth. A cloud bucket; SeaweedFS (S3 API) locally.
 - **Control plane API**: tenants, auth, observability, tenant-to-resource mapping, and future
-  control-plane features that are not data-path logic. State assumed to be in Postgres.
+  control-plane features that are not data-path logic. State assumed to be in Postgres. It owns
+  all auth values: it authenticates tenants and issues the tenant token (JWT) whose claims carry
+  identity and permissions, and publishes the signing keys the gateway verifies with. The model is
+  the control plane / application plane split in Tod Golding's *Building Multi-Tenant SaaS
+  Architectures* (O'Reilly, 2024).
 
 ## Rules
 

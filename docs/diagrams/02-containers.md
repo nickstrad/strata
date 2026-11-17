@@ -12,12 +12,12 @@ flowchart TB
         direction TB
 
         subgraph cp["Control plane"]
-            cpapi["<b>Control plane API</b><br/>[Go service]<br/>Tenants, auth, observability,<br/>tenant-to-resource mapping"]
-            pg[("<b>Control plane DB</b><br/>[Postgres]<br/>Tenants, credentials,<br/>nodes, placements")]
+            cpapi["<b>Control plane API</b><br/>[Go service]<br/>Tenants, identity and tokens,<br/>observability,<br/>tenant-to-resource mapping"]
+            pg[("<b>Control plane DB</b><br/>[Postgres]<br/>Tenants, identities,<br/>nodes, placements")]
         end
 
         subgraph dp["Data plane"]
-            gw["<b>Gateway</b><br/>[Go service]<br/>Speaks the Valkey wire protocol.<br/>Routes each tenant to its owner."]
+            gw["<b>Gateway</b><br/>[Go service]<br/>Checks the tenant token,<br/>routes the tenant to its owner."]
 
             subgraph node["Data node (×N, scaled horizontally)"]
                 owner["<b>Owner</b><br/>[Go process]<br/>Logs each write, then applies it.<br/>One actor per Valkey process."]
@@ -32,11 +32,12 @@ flowchart TB
 
     obj[("<b>Object storage</b><br/>[S3 API; SeaweedFS locally]<br/>Ultimate source of truth")]
 
-    client -- "Valkey commands [RESP]" --> gw
+    client -- "Valkey commands [RESP]<br/>with a tenant token (JWT)" --> gw
+    client -. "Gets a tenant token [HTTPS]" .-> cpapi
     admin -- "Manage tenants [HTTPS]" --> cpapi
     cpapi -- "Reads / writes [SQL]" --> pg
 
-    gw -- "Forwards commands" --> owner
+    gw -- "Forwards commands<br/>with the tenant context" --> owner
     owner -- "Step 1: Appends each write [Kafka]" --> rp
     owner -- "Step 2: Runs the command [RESP]" --> valkey
     flusher -- "Consumes the log [Kafka]" --> rp
@@ -44,7 +45,7 @@ flowchart TB
     obj -- "Restore on start [S3]" --> owner
     rp -- "Replay the unflushed tail" --> owner
 
-    gw -. "Gets routes and credentials" .-> cpapi
+    gw -. "Gets routes and<br/>token signing keys" .-> cpapi
     owner -. "Registers, heartbeats,<br/>takes tenant ownership" .-> cpapi
     flusher -. "Reports flush progress" .-> cpapi
 
@@ -66,11 +67,18 @@ flowchart TB
 
 ### Gateway
 
-The single endpoint clients connect to. It speaks the Valkey wire protocol (RESP), works out which
-tenant a connection belongs to, and looks up the data node that currently owns that tenant's data.
-It then forwards the tenant's commands to that node's owner. The gateway holds no tenant data. Its
-tenant-to-owner map is a cache of what the control plane decided, so any number of gateways can run
-side by side. Detail: [03-components-gateway.md](03-components-gateway.md).
+The single endpoint clients connect to, kept deliberately simple. A request arrives with a tenant
+token (a JWT) that the control plane issued. The gateway checks the token, reads the tenant and its
+permissions from the token's claims, looks up the data node that currently owns that tenant's
+data, and forwards the commands to that node's owner. It does not interpret the commands; the
+owner does that.
+
+The gateway does not own auth. It keeps no credentials and makes no auth decisions of its own: the
+control plane decides who a tenant is and what it may do, and puts that in the token. The gateway
+only verifies the signature, using signing keys it fetches from the control plane, so no call to
+the control plane is needed per request. It holds no tenant data either, and its tenant-to-owner
+map is a cache of what the control plane decided, so any number of gateways can run side by side.
+Detail: [03-components-gateway.md](03-components-gateway.md).
 
 ### Data node: owner + Valkey process
 
@@ -109,9 +117,16 @@ S3 API.
 
 ### Control plane API and DB
 
-Everything that is not the data path: tenant accounts and auth, observability, and the SaaS-style
+Everything that is not the data path: tenant accounts, identity, observability, and the SaaS-style
 mapping of tenants to resources (which data node owns which tenant). Future control-plane features
-that are not business logic of the data path go here too. Its state is in Postgres (assumed; see
+that are not business logic of the data path go here too.
+
+The control plane owns all auth values. It authenticates tenants and issues the tenant token (JWT)
+that carries the tenant's identity and permissions as claims. Every request to the data plane
+carries that token, and the gateway and owners act on its claims instead of holding credentials
+themselves. This follows the control plane / application plane model in Tod Golding's *Building
+Multi-Tenant SaaS Architectures* (O'Reilly, 2024), where tenant context travels in the token; the
+"data plane" here is that book's application plane. Its state is in Postgres (assumed; see
 the open questions in the [README](README.md)). The data plane keeps serving from cached routes if
 the control plane is down; only changes (new tenants, moves) wait.
 Detail: [06-components-control-plane.md](06-components-control-plane.md).
