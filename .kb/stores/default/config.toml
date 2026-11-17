@@ -1,0 +1,15 @@
+# kb store config. Every key you leave out has its default: kb config shows them all.
+version = 1
+
+[embed]
+# A supported model (kb model list), or "none" for full-text search only.
+# Changing it on an existing index needs kb reindex --all.
+model = "BAAI/bge-small-en-v1.5"
+
+# Sources: what this store indexes, relative to the location root. layout "entries" is a
+# directory kb add writes to (front matter required); layout "files" indexes the *.md files
+# a glob matches where they are (front matter optional; exclude = [...] leaves some out).
+# A file may belong to one source only. No [[sources]] means nothing is indexed.
+[[sources]]
+path = "data"
+layout = "entries"

@@ -1,0 +1,6 @@
+# Written by kb init. Databases, baselines, backups, the incident log and migration locks are derived.
+stores/*/kb.sqlite*
+stores/*/eval/
+*.bak-v*
+kb.log
+migrate.lock
