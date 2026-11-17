@@ -30,8 +30,8 @@ mounts `/var/lib/postgresql`, not `/var/lib/postgresql/data` as older images did
 - `make infra-down` stops it and keeps the data volumes; `make infra-clean` also deletes them.
 - `agent/scripts/infra-smoke.sh` checks every service end to end.
 
-## Port clash with other projects
+## Port clash with other containers
 
-Another local project, coldload, runs its own `coldload-seaweedfs` container on 8333, 8888 and
-9333. If it is running, `make infra-up` fails with "port is already allocated". Stop it first
-(`docker stop coldload-seaweedfs`).
+SeaweedFS uses host ports 8333, 8888 and 9333, and Postgres 5432. If another container on the
+machine already publishes one of them, `make infra-up` fails with "port is already allocated".
+`docker ps` shows which container holds the port; stop it first.
