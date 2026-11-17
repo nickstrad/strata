@@ -1,7 +1,7 @@
 ---
 title: Local infrastructure (compose stack) ports and checks
-summary: compose.yaml runs SeaweedFS, Redpanda and Valkey on 127.0.0.1; make infra-up/infra-down; agent/scripts/infra-smoke.sh checks it.
-tags: [infra, docker, seaweedfs, redpanda, valkey]
+summary: compose.yaml runs Postgres, SeaweedFS, Redpanda and Valkey on 127.0.0.1; make infra-up/infra-down; agent/scripts/infra-smoke.sh checks it.
+tags: [infra, docker, postgres, seaweedfs, redpanda, valkey]
 updated: 2026-11-16
 ---
 
@@ -9,15 +9,20 @@ updated: 2026-11-16
 
 ## Services and ports
 
-`compose.yaml` (project name `strata`) runs three services. Every port is bound to 127.0.0.1.
+`compose.yaml` (project name `strata`) runs four services. Every port is bound to 127.0.0.1.
 
 | Service | Image | Host ports |
 |---|---|---|
+| Postgres (user, password and database all `strata`) | `postgres:18.7-alpine` | 5432 |
 | SeaweedFS (`weed server -filer -s3`) | `chrislusf/seaweedfs:4.54` | 9333 master, 8888 filer, 8333 S3 |
 | Redpanda (dev-container mode) | `redpandadata/redpanda:v26.2.7` | 19092 Kafka, 18081 schema registry, 18082 HTTP proxy, 19644 admin |
 | Valkey (append-only file on) | `valkey/valkey:9.1.3-alpine` | 6379 |
 
 Inside the compose network, Kafka clients use `redpanda:9092`; from the host, `localhost:19092`.
+
+Postgres from the host: `postgres://strata:strata@localhost:5432/strata`; `make psql` opens a
+shell. The Postgres 18 image keeps its data under `/var/lib/postgresql/18/docker`, so the volume
+mounts `/var/lib/postgresql`, not `/var/lib/postgresql/data` as older images did.
 
 ## Commands
 

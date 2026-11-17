@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 
 .PHONY: help build run test fmt vet \
 	infra-up infra-down infra-restart infra-ps infra-logs infra-pull infra-clean \
-	redpanda-topics valkey-cli seaweedfs-status
+	redpanda-topics valkey-cli seaweedfs-status psql
 
 help: ## List the targets
 	@grep -hE '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  %-18s %s\n", $$1, $$2}'
@@ -28,7 +28,7 @@ vet: ## Run go vet
 
 ## Infrastructure (compose.yaml)
 
-infra-up: ## Start seaweedfs, redpanda and valkey; wait until they are healthy
+infra-up: ## Start postgres, seaweedfs, redpanda and valkey; wait until they are healthy
 	$(COMPOSE) up -d --wait
 
 infra-down: ## Stop the services (keeps the data volumes)
@@ -50,6 +50,9 @@ infra-clean: ## Stop the services and DELETE their data volumes
 
 redpanda-topics: ## List Redpanda topics
 	$(COMPOSE) exec redpanda rpk topic list
+
+psql: ## Open psql on the strata database
+	$(COMPOSE) exec postgres psql -U strata -d strata
 
 valkey-cli: ## Open valkey-cli
 	$(COMPOSE) exec valkey valkey-cli

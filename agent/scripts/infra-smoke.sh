@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke-tests the local compose stack (compose.yaml): Redpanda, Valkey and SeaweedFS.
+# Smoke-tests the local compose stack (compose.yaml): Redpanda, Postgres, Valkey and SeaweedFS.
 # Needs: the stack is up (`make infra-up`). Run from the repo root: agent/scripts/infra-smoke.sh
 # Exits non-zero at the first failed check. Removes the test topic, key and file it creates.
 set -euo pipefail
@@ -27,6 +27,11 @@ got=$("${compose[@]}" exec -T redpanda rpk topic consume "$topic" -n 1 -f '%v\n'
 "${compose[@]}" exec -T redpanda rpk topic delete "$topic" >/dev/null
 check_http "redpanda schema registry" http://127.0.0.1:18081/subjects
 check_http "redpanda admin api" http://127.0.0.1:19644/v1/status/ready
+
+# Postgres
+got=$("${compose[@]}" exec -T postgres psql -U strata -d strata -tAc \
+  "create temp table smoke(v text); insert into smoke values ('$payload'); select v from smoke;")
+[[ "$got" == *"$payload"* ]] && pass "postgres write/read" || fail "postgres write/read (got '$got')"
 
 # Valkey
 "${compose[@]}" exec -T valkey valkey-cli set "$key" "$payload" >/dev/null
